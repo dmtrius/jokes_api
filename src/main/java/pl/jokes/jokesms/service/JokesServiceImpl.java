@@ -2,10 +2,8 @@ package pl.jokes.jokesms.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import pl.jokes.jokesms.dto.Joke;
 
 import java.io.IOException;
