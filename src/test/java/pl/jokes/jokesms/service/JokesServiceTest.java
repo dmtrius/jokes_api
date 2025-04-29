@@ -23,11 +23,10 @@ public class JokesServiceTest {
   @Mock
   private HttpClient httpClient;
   private JokesService jokesService;
-  private ObjectMapper objectMapper;
 
   @BeforeEach
   void setUp() throws Exception {
-    objectMapper = new ObjectMapper();
+    ObjectMapper objectMapper = new ObjectMapper();
     jokesService = new JokesServiceImpl(objectMapper);
     ReflectionTestUtils.setField(jokesService, "httpClient", httpClient);
     ReflectionTestUtils.setField(jokesService, "JOKE_API_URL", "http://test.com");
@@ -47,7 +46,7 @@ public class JokesServiceTest {
   }
 
   @Test
-  void shouldFetchSingleJoke() throws Exception {
+  void shouldFetchSingleJoke() {
     List<Joke> jokes = jokesService.getJoke(1);
 
     assertEquals(1, jokes.size());
@@ -57,7 +56,7 @@ public class JokesServiceTest {
   }
 
   @Test
-  void shouldFetchTenJokes() throws Exception {
+  void shouldFetchTenJokes() {
     List<Joke> jokes = jokesService.getJoke(10);
 
     assertEquals(10, jokes.size());

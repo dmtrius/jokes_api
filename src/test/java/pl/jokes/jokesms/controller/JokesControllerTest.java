@@ -1,6 +1,8 @@
 package pl.jokes.jokesms.controller;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -8,7 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import pl.jokes.jokesms.dto.Joke;
-import pl.jokes.jokesms.service.JokesService;
+import pl.jokes.jokesms.service.JokesServiceImpl;
 
 import java.util.List;
 
@@ -16,14 +18,15 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest
+@ExtendWith(MockitoExtension.class)
+@WebMvcTest(JokesController.class)
 public class JokesControllerTest {
 
   @Autowired
   private MockMvc mockMvc;
 
   @MockBean
-  private JokesService jokesService;
+  private JokesServiceImpl jokesService;
 
   @Test
   void shouldReturnDefaultJokes() throws Exception {
