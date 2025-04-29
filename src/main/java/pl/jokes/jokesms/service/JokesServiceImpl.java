@@ -3,7 +3,9 @@ package pl.jokes.jokesms.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import pl.jokes.jokesms.dto.Joke;
 
 import java.io.IOException;
@@ -14,6 +16,7 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -32,21 +35,38 @@ public class JokesServiceImpl implements JokesService {
 
     @Override
     public List<Joke> getJoke(int count) {
-        List<CompletableFuture<Joke>> futures = new ArrayList<>();
-        List<Joke> jokes = new ArrayList<>();
+        try {
+            List<Joke> jokes = new ArrayList<>();
+            int batches = (int) Math.ceil(count / 10.0);
 
-        int batches = (int) Math.ceil(count / 10.0);
-        for (int i = 0; i < batches; i++) {
-            int batchSize = Math.min(10, count - (i * 10));
-            List<CompletableFuture<Joke>> batch = new ArrayList<>();
+            for (int i = 0; i < batches; i++) {
+                int batchSize = Math.min(10, count - (i * 10));
+                List<CompletableFuture<Joke>> batch = new ArrayList<>();
 
-            for (int j = 0; j < batchSize; j++) {
-                batch.add(CompletableFuture.supplyAsync(this::fetchJoke, executor));
+                for (int j = 0; j < batchSize; j++) {
+                    batch.add(CompletableFuture.supplyAsync(() -> {
+                        try {
+                          return fetchJoke();
+                        } catch (Exception e) {
+                            throw new CompletionException(e);
+                        }
+                    }, executor));
+                }
+
+                List<Joke> batchResults = batch.stream()
+                    .map(CompletableFuture::join)
+                    .toList();
+
+                jokes.addAll(batchResults);
             }
-            List<Joke> batchResults = batch.stream().map(CompletableFuture::join).toList();
-            jokes.addAll(batchResults);
+
+            return jokes;
+        } catch (CompletionException e) {
+            //log.error("Error getting jokes", e);
+            Throwable cause = e.getCause();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                "Failed to retrieve jokes: " + cause.getMessage(), cause);
         }
-        return jokes;
     }
 
     @SneakyThrows
