@@ -2,6 +2,7 @@ package pl.jokes.jokesms.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@Slf4j
 @Service("JokesService")
 public class JokesServiceImpl implements JokesService {
     private final ObjectMapper objectMapper;
@@ -34,7 +36,14 @@ public class JokesServiceImpl implements JokesService {
     }
 
     @Override
-    public List<Joke> getJoke(int count) {
+    public Joke getJoke() {
+        log.info("Getting Joke");
+        return getJokes(1).getFirst();
+    }
+
+    @Override
+    public List<Joke> getJokes(int count) {
+        log.info("Getting Jokes");
         try {
             List<Joke> jokes = new ArrayList<>();
             int batches = (int) Math.ceil(count / 10.0);

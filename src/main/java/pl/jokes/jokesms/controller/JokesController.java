@@ -27,6 +27,11 @@ public class JokesController {
     if (count < 1 || count > MAX_JOKES) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "more then 1, and no more then " + MAX_JOKES);
     }
-    return ResponseEntity.ok(jokesService.getJoke(count));
+    return ResponseEntity.ok(jokesService.getJokes(count));
+  }
+
+  @GetMapping("/joke")
+  public ResponseEntity<Joke> getJoke() {
+    return ResponseEntity.ok(jokesService.getJoke());
   }
 }
